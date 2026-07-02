@@ -3,8 +3,9 @@ Ziggurat Analytics Engine — web UI
 Upload Meta CSV exports, pick a client, download the scored performance workbook.
 Reuses core/build_workbook.py unchanged — same logic as the skill, one source of truth.
 
-Deterministic-only: produces fully-built data tabs + empty insight shells.
-The optional /insights step (Claude API) is stubbed at the bottom for phase 2.
+Produces fully-built data tabs plus Claude-written insight sections in a single /run:
+run_build() calls core/insights.py inline. If ANTHROPIC_API_KEY is unset (or the call
+fails), it degrades gracefully to labelled insight shells with a note — no separate step.
 """
 import os
 import glob
@@ -124,19 +125,12 @@ def run():
     resp.headers["X-Counts"] = quote(json.dumps(result.get("counts") or {}))
     resp.headers["X-Notes"] = quote(json.dumps(other_notes))
     resp.headers["X-Top-Posts"] = quote(json.dumps(result.get("top_posts") or []))
+    # Contract §1.3 provenance block — same URL-quoted convention as the other metadata headers.
+    resp.headers["X-Provenance"] = quote(json.dumps(result.get("provenance") or {}))
     resp.headers["Access-Control-Expose-Headers"] = (
-        "X-Insight-Note, X-Client, X-Month, X-Counts, X-Notes, X-Top-Posts"
+        "X-Insight-Note, X-Client, X-Month, X-Counts, X-Notes, X-Top-Posts, X-Provenance"
     )
     return resp
-
-
-# ---- Phase 2 stub: Claude-powered insight tabs -------------------------------------------------
-# @app.route("/insights", methods=["POST"])
-# def insights():
-#     """Takes a built workbook + config, calls the Claude API to write the Footnotes/Summary
-#     tabs, returns the enriched file. Needs ANTHROPIC_API_KEY in the Railway environment.
-#     Build this only once the deterministic flow is proven with the team."""
-#     ...
 
 
 if __name__ == "__main__":

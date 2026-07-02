@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import json
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 
 try:
@@ -39,11 +40,30 @@ except ImportError:
     sys.exit("pandas required: pip install pandas --break-system-packages")
 
 
+# Semver-ish tool version stamped into the §1.3 provenance block (contract §1.3). Bump when the
+# emitted artifact shape changes. Mirrors TOOL_VERSION in the sibling sentiment repo (run.py).
+TOOL_VERSION = "1.0.0"
+
+
 class MissingColumns(Exception):
     """Raised when an expected Meta export column is absent — fail loud, never mis-score."""
     def __init__(self, detail: dict):
         self.detail = detail
         super().__init__(f"Missing columns: {detail}")
+
+
+def build_provenance(client_slug: str, source_ids: list | None = None,
+                     run_id: str | None = None) -> dict:
+    """The System Integration Contract §1.3 provenance block, identical in shape across all three
+    tools. `source_ids` stays [] here until Phase 2 derives a source_id per scored post."""
+    return {
+        "run_id": run_id or f"analytics-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "tool": "analytics",
+        "tool_version": TOOL_VERSION,
+        "client_slug": client_slug or None,
+        "source_ids": source_ids or [],
+    }
 
 
 # ----------------------------------------------------------------------------------------------
@@ -454,7 +474,9 @@ def run_build(config_path: str, csv_paths: dict, month: str | None = None,
     """
     cfg = parse_config(config_path)
     report = {"client": cfg.client_name, "platforms_active": cfg.platforms_active,
-              "validation": {}, "notes": []}
+              "validation": {}, "notes": [],
+              # Contract §1.3 spine — stamped once per run. source_ids populated in Phase 2.
+              "provenance": build_provenance(cfg.client_slug, source_ids=[])}
 
     # --- Meta platforms ---
     dfs = {}

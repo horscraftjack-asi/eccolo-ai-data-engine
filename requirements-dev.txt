@@ -1,0 +1,4 @@
+# Test-only dependencies (not shipped to Railway; prod deps stay in requirements.txt).
+# Phase 0 harness — the only added dependency is pytest.
+-r requirements.txt
+pytest>=8.0

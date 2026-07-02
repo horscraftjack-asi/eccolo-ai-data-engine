@@ -80,5 +80,6 @@ Neither hop is required — unset either env var and that link/behaviour simply 
 uses. The web app and the skill both call `run_build()`, so scoring logic never forks.
 
 - Deterministic build (scoring, tabs, formatting): done here, free, instant.
-- Written insight tabs (Footnotes/Summary): currently added afterward via the skill. A `/insights`
-  endpoint that calls the Claude API is stubbed in `app.py` for a future one-click version.
+- Written insight tabs (Footnotes/Summary): generated live inside the same `/run` by
+  `core/insights.py` (Claude API). If `ANTHROPIC_API_KEY` is unset or the call fails, the build
+  degrades gracefully to labelled insight shells with a note — no separate step or endpoint.

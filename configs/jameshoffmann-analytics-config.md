@@ -18,7 +18,7 @@ client-config-TEMPLATE schema 1.0. Read in full before writing any insight.*
 
 ```yaml
 client_name: Hoffmann
-client_slug: hoffmann
+client_slug: jameshoffmann
 brand_accent_hex: #2C2C2C
 output_filename: Hoffmann_[MonthYear]_Performance.xlsx
 platforms_active: [instagram, facebook]

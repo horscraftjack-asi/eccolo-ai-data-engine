@@ -531,7 +531,13 @@
           if (SCRAPER_URL && topIsYouTube) {
             $("scrapeTopVideo").style.display = "block";
             $("scrapeTopVideo").onclick = () => {
-              window.open(`${SCRAPER_URL}/?url=${encodeURIComponent(topPosts[0].permalink)}`, "_blank");
+              // Carry client continuity across the hop (contract §1 spine): the scraper reads
+              // ?client_slug= on load. Omit it for an ad-hoc uploaded config (no bundled slug).
+              let hop = `${SCRAPER_URL}/?url=${encodeURIComponent(topPosts[0].permalink)}`;
+              if (client.value && client.value !== "__upload__") {
+                hop += `&client_slug=${encodeURIComponent(client.value)}`;
+              }
+              window.open(hop, "_blank");
             };
           } else {
             $("scrapeTopVideo").style.display = "none";
