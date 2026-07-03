@@ -79,6 +79,35 @@ def test_run_build_raises_missingcolumns(tmp_path):
     assert "Permalink" in exc.value.detail["instagram"]
 
 
+def test_youtube_missing_metric_degrades_gracefully(tmp_path):
+    """YouTube exports vary column-to-column: a missing SCORED metric is skipped + warned,
+    not fatal. Meta keeps failing loud (test above) — this leniency is YouTube-only."""
+    cfg = bw.parse_config(CONFIG)
+    # A "default" YouTube export lacking Watch time (a scored metric for this config)
+    yt = pd.read_csv(os.path.join(FIXTURES, "youtube.csv")).drop(columns=["Watch time (hours)"])
+    src = tmp_path / "yt_default.csv"
+    yt.to_csv(src, index=False)
+    result = bw.run_build(config_path=CONFIG, csv_paths={"youtube": str(src)}, out_dir=str(tmp_path))
+
+    assert result["status"] == "built"                      # did NOT fail loud
+    val = result["validation"]["youtube_longform"]
+    assert val["missing_metrics"] == ["Watch time (hours)"]  # correctly identified as skippable
+    assert val["missing_structural"] == []                   # not a wrong-file situation
+    assert any("Watch time (hours)" in n and "skipped" in n.lower()
+               for n in result["notes"])                     # surfaced prominently
+
+
+def test_youtube_missing_structural_column_still_fails(tmp_path):
+    """Wrong-file detection is preserved: a missing STRUCTURAL YouTube column still aborts."""
+    cfg = bw.parse_config(CONFIG)
+    yt = pd.read_csv(os.path.join(FIXTURES, "youtube.csv")).drop(columns=["Video title"])
+    src = tmp_path / "yt_wrongfile.csv"
+    yt.to_csv(src, index=False)
+    with pytest.raises(bw.MissingColumns) as exc:
+        bw.run_build(config_path=CONFIG, csv_paths={"youtube": str(src)}, out_dir=str(tmp_path))
+    assert "Video title" in exc.value.detail.get("youtube_longform", [])
+
+
 # --- score_posts (deterministic order + tie-break) ------------------------------------------
 def test_score_posts_higher_metric_scores_higher():
     df = pd.DataFrame({

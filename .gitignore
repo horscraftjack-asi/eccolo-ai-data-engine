@@ -14,3 +14,6 @@ env/
 
 # Claude Code local settings
 .claude/
+
+# Internal teardown/diagnosis notes — never commit
+FABLE-TEARDOWN-BRIEF.md

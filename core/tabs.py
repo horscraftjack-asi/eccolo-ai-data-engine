@@ -658,7 +658,10 @@ def build_youtube_tab(wb, df, cfg, month, kind):
     }
     ws = wb.create_sheet(title=tab_titles.get(kind, f"YouTube — {month}"))
 
-    metrics = cfg.metrics.get(kind, [])
+    # Only render metrics that were actually scored — a metric absent from the export (or
+    # dropped by the sparsity rule) has no Score: column, so we skip its raw + score columns
+    # rather than emitting a misleading blank column. Mirrors the Stories tab.
+    metrics = [m for m in cfg.metrics.get(kind, []) if f"Score: {m}" in df.columns]
     n = len(df)
     top_n, bottom_n = 5, 5
     has_revenue = "Estimated revenue (USD)" in df.columns

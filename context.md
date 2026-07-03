@@ -125,6 +125,11 @@ this creator until reconciled.
 - **Metadata via response headers** on `/run` — chosen because the primary response must be the
   file download; values URL-quoted for Latin-1 safety. Odd-looking, intentional.
 - **Fail-loud `MissingColumns`** rather than best-effort scoring — never mis-score silently.
+  Scoped exception: on **YouTube** (whose Studio exports legitimately vary column-to-column) a
+  missing *scored metric* degrades gracefully — the engine scores what's present and appends a
+  prominent skip note — while a missing *structural* column (`Video title`/`Publish time`/
+  `Duration`, i.e. wrong file) still fails loud. Meta platforms fail loud on any missing column.
+  See `structural_columns` / `split_missing` in `core/build_workbook.py`.
 - **Deterministic tie-breaking** in scoring (older-post-first on tied Total Score) — reproducibility.
 - **Empty special-content tabs are still emitted** with a note — the team expects the tab to exist.
 - **CORS `*` fallback when `FRONTEND_ORIGIN` unset** — documented as fine for dev, to be locked

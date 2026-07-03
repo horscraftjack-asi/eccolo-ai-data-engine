@@ -251,17 +251,40 @@ def detect_platform(df: pd.DataFrame) -> str | None:
     return None
 
 
-def validate_columns(df: pd.DataFrame, platform: str, cfg: Config) -> list:
-    """Return list of expected-but-missing columns; empty list = OK."""
-    needed = set(cfg.metrics.get(platform, []))
-    if platform in ("youtube_shorts", "youtube_longform"):
+YOUTUBE_PLATFORMS = ("youtube_shorts", "youtube_longform")
+
+
+def structural_columns(platform: str) -> set:
+    """Columns whose absence means the WRONG FILE was uploaded (not a missing metric).
+
+    These always fail the build loud — degrading gracefully over them would silently
+    process a file that isn't what it claims to be.
+    """
+    if platform in YOUTUBE_PLATFORMS:
         # YouTube exports have no Description or Post type — just title, publish time, duration
-        needed |= {"Video title", "Publish time", "Duration"}
-    else:
-        needed |= {"Description", "Permalink", "Publish time"}
-        if platform != "stories":
-            needed |= {"Post type"}
-    return sorted(needed - set(df.columns))
+        return {"Video title", "Publish time", "Duration"}
+    needed = {"Description", "Permalink", "Publish time"}
+    if platform != "stories":
+        needed |= {"Post type"}
+    return needed
+
+
+def split_missing(df: pd.DataFrame, platform: str, cfg: Config) -> tuple[list, list]:
+    """Return (missing_structural, missing_metrics) for a platform's dataframe.
+
+    Structural = wrong-file columns (always fatal). Metrics = scored columns declared in
+    the config; on YouTube these degrade gracefully (skip + warn) rather than failing.
+    """
+    have = set(df.columns)
+    missing_structural = sorted(structural_columns(platform) - have)
+    missing_metrics = sorted(set(cfg.metrics.get(platform, [])) - have)
+    return missing_structural, missing_metrics
+
+
+def validate_columns(df: pd.DataFrame, platform: str, cfg: Config) -> list:
+    """Return the sorted union of expected-but-missing columns; empty list = OK."""
+    missing_structural, missing_metrics = split_missing(df, platform, cfg)
+    return sorted(set(missing_structural) | set(missing_metrics))
 
 
 # ----------------------------------------------------------------------------------------------
@@ -602,8 +625,13 @@ def run_build(config_path: str, csv_paths: dict, month: str | None = None,
             report["notes"].append(f"WARNING: {plat} CSV looks like {detected} data (column fingerprint).")
         if plat not in cfg.platforms_active:
             report["notes"].append(f"WARNING: {plat} CSV provided but {plat} not in platforms_active.")
-        missing = validate_columns(df, plat, cfg)
-        report["validation"][plat] = {"missing_columns": missing, "rows": len(df)}
+        missing_structural, missing_metrics = split_missing(df, plat, cfg)
+        report["validation"][plat] = {
+            "missing_columns": sorted(set(missing_structural) | set(missing_metrics)),
+            "missing_structural": missing_structural,
+            "missing_metrics": missing_metrics,
+            "rows": len(df),
+        }
         dfs[plat] = df
 
     # --- YouTube platform ---
@@ -633,12 +661,35 @@ def run_build(config_path: str, csv_paths: dict, month: str | None = None,
     for plat, yt_df in (("youtube_shorts", yt_shorts_df), ("youtube_longform", yt_longform_df)):
         if yt_df is None or len(yt_df) == 0:
             continue
-        missing = validate_columns(yt_df, plat, cfg)
-        report["validation"][plat] = {"missing_columns": missing, "rows": len(yt_df)}
+        missing_structural, missing_metrics = split_missing(yt_df, plat, cfg)
+        report["validation"][plat] = {
+            "missing_columns": sorted(set(missing_structural) | set(missing_metrics)),
+            "missing_structural": missing_structural,
+            "missing_metrics": missing_metrics,
+            "rows": len(yt_df),
+        }
         dfs[plat] = yt_df
 
     # --- Fail loud on missing columns ---
-    fatal = {p: v["missing_columns"] for p, v in report["validation"].items() if v["missing_columns"]}
+    # Meta platforms fail on ANY missing expected column — stable exports mean a gap almost
+    # always signals a header rename we must not silently mis-score around.
+    # YouTube exports legitimately vary column-to-column: a missing STRUCTURAL column still
+    # fails (wrong file), but missing SCORED METRICS degrade gracefully — we score what's
+    # present and surface a prominent note listing what was skipped.
+    fatal = {}
+    for plat, v in report["validation"].items():
+        if plat in YOUTUBE_PLATFORMS:
+            if v["missing_structural"]:
+                fatal[plat] = v["missing_structural"]
+            elif v["missing_metrics"]:
+                label = "YouTube Shorts" if plat == "youtube_shorts" else "YouTube Long-form"
+                report["notes"].append(
+                    f"{label}: export was missing {len(v['missing_metrics'])} scored metric(s) — "
+                    f"{', '.join(v['missing_metrics'])}. Scored the columns that were present and "
+                    "skipped these. To include them, re-export via YouTube Studio → Advanced mode "
+                    "with those columns visible.")
+        elif v["missing_columns"]:
+            fatal[plat] = v["missing_columns"]
     if fatal:
         raise MissingColumns(fatal)
     if validate_only:
