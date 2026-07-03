@@ -10,6 +10,7 @@ fails), it degrades gracefully to labelled insight shells with a note — no sep
 import os
 import glob
 import json
+import time
 import tempfile
 from urllib.parse import quote
 from flask import Flask, request, render_template, send_file, jsonify
@@ -19,6 +20,24 @@ from core import build_workbook as bw
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024  # 25 MB upload cap
+
+# In-memory stash for the contract §5 run.json side-output, keyed by provenance run_id with a
+# short TTL. The workbook is the /run primary response (a file download), so the run.json rides
+# out-of-band: /run stashes it, the result screen fetches GET /api/run/<run_id>.json.
+#
+# This store lives in ONE process's memory, so it is only correct with a SINGLE gunicorn worker
+# (see Procfile + gunicorn.conf.py — both pinned to --workers 1). This mirrors the in-memory
+# job-store invariant documented in the sibling eccolo-ai-scraper-sentiment/sentiment/jobs.py.
+# The named upgrade path if this ever needs multiple workers is an external store (Redis).
+_RUN_STORE = {}          # run_id -> (run_json_dict, expiry_epoch_seconds)
+_RUN_TTL = 30 * 60       # 30 minutes, matching the sibling repo's job TTL
+
+
+def _stash_run_json(run_id, data):
+    now = time.time()
+    for stale in [k for k, (_, exp) in _RUN_STORE.items() if exp < now]:
+        _RUN_STORE.pop(stale, None)
+    _RUN_STORE[run_id] = (data, now + _RUN_TTL)
 
 # Lock CORS to the frontend's origin in production. Set FRONTEND_ORIGIN to the
 # unified frontend's URL (comma-separated for multiple). Unset -> "*", so this
@@ -112,6 +131,17 @@ def run():
     except Exception as e:
         return jsonify({"error": f"Build failed: {e}"}), 500
 
+    # Stash the §5 run.json (written to disk by run_build) so the result screen can fetch it by
+    # run_id. Read the file run_build produced rather than re-deriving, so on-disk and served match.
+    provenance = result.get("provenance") or {}
+    run_id = provenance.get("run_id")
+    if run_id and result.get("run_json"):
+        try:
+            with open(result["run_json"], encoding="utf-8") as f:
+                _stash_run_json(run_id, json.load(f))
+        except (OSError, ValueError):
+            pass  # run.json is a side-output; never fail the workbook download over it
+
     resp = send_file(result["output"], as_attachment=True,
                      download_name=os.path.basename(result["output"]))
     # Expose build notes + stats to the frontend's result screen. Header values must be
@@ -130,6 +160,19 @@ def run():
     resp.headers["Access-Control-Expose-Headers"] = (
         "X-Insight-Note, X-Client, X-Month, X-Counts, X-Notes, X-Top-Posts, X-Provenance"
     )
+    return resp
+
+
+@app.route("/api/run/<run_id>.json", methods=["GET"])
+def run_json(run_id):
+    """Serve the §5 run.json stashed by the most recent /run for this run_id (30-min TTL).
+    404 once it expires or if the process was redeployed — the workbook is the durable artifact."""
+    entry = _RUN_STORE.get(run_id)
+    if not entry or entry[1] < time.time():
+        _RUN_STORE.pop(run_id, None)
+        return jsonify({"error": "Unknown or expired run_id."}), 404
+    resp = app.response_class(json.dumps(entry[0], indent=2), mimetype="application/json")
+    resp.headers["Content-Disposition"] = f'attachment; filename="{run_id}.run.json"'
     return resp
 
 

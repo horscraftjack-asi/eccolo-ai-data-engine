@@ -310,6 +310,7 @@
         <button class="btn-primary" id="downloadAgain">↓ Download workbook</button>
         <div class="btn-row">
           <button class="btn-secondary accent-text" id="scrapeTopVideo" style="display:none">Scrape top video →</button>
+          <button class="btn-secondary" id="downloadRunJson" style="display:none">↓ run.json</button>
           <button class="btn-secondary" id="buildAnother">New run</button>
         </div>
       </div>
@@ -474,6 +475,7 @@
       const counts = JSON.parse(decode(r.headers.get("X-Counts")) || "{}");
       const notes = JSON.parse(decode(r.headers.get("X-Notes")) || "[]");
       const topPosts = JSON.parse(decode(r.headers.get("X-Top-Posts")) || "[]");
+      const provenance = JSON.parse(decode(r.headers.get("X-Provenance")) || "{}");
       const nameMatch = (r.headers.get("Content-Disposition") || "").match(/filename="?([^"]+)"?/);
       const filename = nameMatch ? nameMatch[1] : "performance.xlsx";
       const blob = await r.blob();
@@ -541,6 +543,15 @@
             };
           } else {
             $("scrapeTopVideo").style.display = "none";
+          }
+
+          // Contract §5 side-output: offer the run.json (stashed server-side by run_id, 30-min TTL).
+          if (provenance.run_id) {
+            $("downloadRunJson").style.display = "block";
+            $("downloadRunJson").onclick = () =>
+              window.open(`/api/run/${encodeURIComponent(provenance.run_id)}.json`, "_blank");
+          } else {
+            $("downloadRunJson").style.display = "none";
           }
 
           if (notes.length) {

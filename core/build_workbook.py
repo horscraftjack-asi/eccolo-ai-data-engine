@@ -364,6 +364,116 @@ def score_posts(df: pd.DataFrame, metrics: list, sparsity: float) -> pd.DataFram
 
 
 # ----------------------------------------------------------------------------------------------
+# Contract §5 structured side-output (.run.json) — an ADDITIONAL emission alongside the workbook.
+# Reads only the already-scored tables; never mutates them (§5 red line: engine internals are
+# verified against a real ChefSteps deliverable — do not edit). source_id is derived per §1.2.
+# ----------------------------------------------------------------------------------------------
+STANDARD_PLATFORMS = ("facebook", "instagram", "stories", "youtube_shorts", "youtube_longform")
+_META_PREFIX = {"instagram": "ig", "facebook": "fb", "stories": "st"}
+# Meta exports vary; try a dedicated post-ID column first (real exports may carry one), then fall
+# back to the Permalink. None of the bundled fixtures carry an ID column — Permalink is the norm.
+_POST_ID_COLS = ("Post ID", "Post Id", "post_id", "Media ID", "Media Id", "Publish Id", "Content ID")
+_YT_PERMALINK_RE = re.compile(r"[?&]v=([A-Za-z0-9_-]{11})")
+
+
+def _val(v) -> str:
+    """Coerce a cell to a clean string, treating NaN/None as empty."""
+    if v is None:
+        return ""
+    try:
+        if pd.isna(v):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    return str(v).strip()
+
+
+def _native_id_from_permalink(url: str) -> str:
+    """Last non-empty path segment of a permalink, e.g. instagram.com/p/ABC/ -> 'ABC'."""
+    base = _val(url).split("?")[0].rstrip("/")
+    if not base:
+        return ""
+    return base.rsplit("/", 1)[-1].strip()
+
+
+def derive_source_id(platform: str, row) -> str:
+    """Contract §1.2 `<platform>:<native_id>`. Returns '' when nothing is derivable (the caller
+    counts these rather than failing the build). The raw ID columns stay untouched — the prefixed
+    source_id is additive, never a replacement."""
+    if platform in ("youtube_shorts", "youtube_longform"):
+        vid = _val(row.get("Video ID"))
+        if vid:
+            return f"yt:{vid}"
+        m = _YT_PERMALINK_RE.search(_val(row.get("Permalink")))
+        return f"yt:{m.group(1)}" if m else ""
+    prefix = _META_PREFIX.get(platform, "")
+    if not prefix:
+        return ""
+    for col in _POST_ID_COLS:
+        v = _val(row.get(col))
+        if v:
+            return f"{prefix}:{v}"
+    token = _native_id_from_permalink(row.get("Permalink"))
+    return f"{prefix}:{token}" if token else ""
+
+
+def cta_detected(platform: str, row) -> str:
+    """Map the already-computed CTA columns to the §5 enum
+    (TriggerWord | LinkInBio | LinkInComments | None). One value per post."""
+    if platform == "instagram":
+        if _val(row.get("Trigger Word")):
+            return "TriggerWord"
+        if bool(row.get("Link in Bio")):
+            return "LinkInBio"
+        return "None"
+    if platform == "facebook":
+        if bool(row.get("Link in Comments")):
+            return "LinkInComments"
+        return "None"
+    return "None"
+
+
+def _platform_of_table(key: str, cfg: Config) -> str | None:
+    """A scored table is either a standard platform or a special-content table (an IG sub-view)."""
+    if key in STANDARD_PLATFORMS:
+        return key
+    for sc in cfg.special_content:
+        if sc["name"] == key:
+            return sc["platform"]
+    return None
+
+
+def build_run_json(tables: dict, cfg: Config, provenance: dict) -> tuple[dict, int]:
+    """Assemble the contract §5 side-output from the scored tables. Returns (run_json, n_missing)
+    where n_missing counts posts whose source_id could not be derived. `provenance` is embedded
+    with its `source_ids` populated to the distinct non-empty source_ids across all scored tables."""
+    posts = []
+    platforms = []
+    n_missing = 0
+    for key, df in tables.items():
+        if df is None or not len(df):
+            continue
+        platform = _platform_of_table(key, cfg)
+        if platform is None:
+            continue
+        if platform not in platforms:
+            platforms.append(platform)
+        for _, row in df.iterrows():
+            sid = derive_source_id(platform, row)
+            if not sid:
+                n_missing += 1
+            posts.append({
+                "source_id": sid,
+                "total_score": int(row.get("Total Score", 0)),
+                "rank": int(row.get("Overall Rank", 0)),
+                "cta_detected": cta_detected(platform, row),
+            })
+    distinct = sorted({p["source_id"] for p in posts if p["source_id"]})
+    provenance = {**provenance, "source_ids": distinct}
+    return {"provenance": provenance, "platforms": sorted(platforms), "posts": posts}, n_missing
+
+
+# ----------------------------------------------------------------------------------------------
 # Workbook build — assembles all tabs in the standard order using core/tabs.py builders.
 # ----------------------------------------------------------------------------------------------
 def build_workbook(tables: dict, cfg: Config, month: str, out_dir: str, notes: list,
@@ -584,7 +694,21 @@ def run_build(config_path: str, csv_paths: dict, month: str | None = None,
 
     out_path = build_workbook(tables, cfg, month, out_dir, report["notes"],
                               breakdown_frames=breakdown_frames, insights=insights)
+
+    # Contract §5 side-output: <workbook-stem>.run.json beside the .xlsx. Purely additive —
+    # the workbook above is untouched. Populates provenance.source_ids as a side effect.
+    run_json, n_missing = build_run_json(tables, cfg, report["provenance"])
+    report["provenance"]["source_ids"] = run_json["provenance"]["source_ids"]
+    if n_missing:
+        report["notes"].append(
+            f"{n_missing} post(s) had no derivable source_id (blank in run.json) — "
+            "no post-ID column and no parseable permalink.")
+    run_json_path = os.path.splitext(out_path)[0] + ".run.json"
+    with open(run_json_path, "w", encoding="utf-8") as f:
+        json.dump(run_json, f, indent=2)
+
     report.update({"status": "built", "month": month, "output": out_path,
+                   "run_json": run_json_path,
                    "top_posts": top_posts(tables),
                    "counts": {k: len(v) for k, v in tables.items()}})
     return report

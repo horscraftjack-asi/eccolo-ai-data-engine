@@ -61,8 +61,8 @@ def test_run_build_meta_and_youtube_no_key(no_api_key, tmp_path):
 
 
 def test_run_build_emits_contract_provenance(no_api_key, tmp_path):
-    """Phase 1: run_build() stamps a contract §1.3 provenance block onto the report.
-    source_ids stays [] until Phase 2 derives a source_id per scored post."""
+    """run_build() stamps a contract §1.3 provenance block onto the report. Phase 2 populates
+    source_ids with the distinct source_ids derived across the scored tables (see test_run_json)."""
     result = bw.run_build(
         config_path=CONFIG,
         csv_paths={"instagram": os.path.join(FIXTURES, "instagram.csv")},
@@ -74,7 +74,8 @@ def test_run_build_emits_contract_provenance(no_api_key, tmp_path):
     assert prov["tool"] == "analytics"
     assert prov["tool_version"] == "1.0.0"
     assert prov["client_slug"] == "testclient"
-    assert prov["source_ids"] == []
+    assert isinstance(prov["source_ids"], list)
+    assert all(s.startswith("ig:") for s in prov["source_ids"])  # instagram-only run
     assert prov["run_id"].startswith("analytics-")
 
 

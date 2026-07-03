@@ -1,0 +1,868 @@
+{
+ "Facebook — May 2026": [
+  [
+   "#",
+   "Post Title",
+   "Format",
+   "Link in Comments",
+   "Date Published",
+   "Reactions",
+   "Total clicks",
+   "Score: Reactions",
+   "Score: Total clicks",
+   "Total Score",
+   "Overall Rank",
+   "Performance Note",
+   "Permalink",
+   "Full Caption"
+  ],
+  [
+   1,
+   "Grinder review",
+   "Video/Reel",
+   null,
+   "05/09/2026 10:00",
+   410,
+   200,
+   4,
+   4,
+   8,
+   1,
+   null,
+   "https://facebook.com/p/f3",
+   "Our top pick this month"
+  ],
+  [
+   2,
+   "Pour over basics",
+   "Video/Reel",
+   null,
+   "05/03/2026 10:00",
+   300,
+   150,
+   3,
+   3,
+   6,
+   2,
+   null,
+   "https://facebook.com/p/f1",
+   "Full guide on the channel"
+  ],
+  [
+   3,
+   "Bean origins",
+   "Photo/Carousel",
+   "✓",
+   "05/06/2026 10:00",
+   220,
+   90,
+   2,
+   2,
+   4,
+   3,
+   null,
+   "https://facebook.com/p/f2",
+   "Link in comments below for the map"
+  ],
+  [
+   4,
+   "Quick tip",
+   "Photo/Carousel",
+   null,
+   "05/11/2026 10:00",
+   120,
+   40,
+   1,
+   1,
+   2,
+   4,
+   null,
+   "https://facebook.com/p/f4",
+   "Try this tomorrow morning"
+  ]
+ ],
+ "Instagram — May 2026": [
+  [
+   "#",
+   "Post Title",
+   "Format",
+   "Trigger Word",
+   "Link in Bio",
+   "No CTA",
+   "Date Published",
+   "Likes",
+   "Saves",
+   "Reach",
+   "Score: Likes",
+   "Score: Saves",
+   "Score: Reach",
+   "Total Score",
+   "Overall Rank",
+   "Performance Note",
+   "Permalink",
+   "Full Caption"
+  ],
+  [
+   1,
+   "Morning routine behind the scenes",
+   "Image",
+   null,
+   null,
+   "✓",
+   "05/08/2026 10:00",
+   200,
+   50,
+   3000,
+   5,
+   5,
+   5,
+   15,
+   1,
+   null,
+   "https://instagram.com/p/ccc",
+   "Morning routine behind the scenes"
+  ],
+  [
+   2,
+   "Milk steaming guide",
+   "Reel",
+   null,
+   null,
+   "✓",
+   "05/12/2026 10:00",
+   150,
+   40,
+   2500,
+   4,
+   4,
+   4,
+   12,
+   2,
+   null,
+   "https://instagram.com/p/eee",
+   "Milk steaming guide"
+  ],
+  [
+   3,
+   "Best espresso tips — Comment BEANS for the guide",
+   "Reel",
+   "BEANS",
+   null,
+   null,
+   "05/02/2026 10:00",
+   120,
+   30,
+   2000,
+   3,
+   3,
+   3,
+   9,
+   3,
+   null,
+   "https://instagram.com/p/aaa",
+   "Best espresso tips — Comment BEANS for the guide"
+  ],
+  [
+   4,
+   "Latte art tutorial link in bio",
+   "Reel",
+   null,
+   "✓",
+   null,
+   "05/05/2026 10:00",
+   80,
+   10,
+   1500,
+   2,
+   2,
+   2,
+   6,
+   4,
+   null,
+   "https://instagram.com/p/bbb",
+   "Latte art tutorial link in bio"
+  ],
+  [
+   5,
+   "Grinder comparison thread",
+   "Carousel",
+   null,
+   null,
+   "✓",
+   "05/10/2026 10:00",
+   60,
+   5,
+   900,
+   1,
+   1,
+   1,
+   3,
+   5,
+   null,
+   "https://instagram.com/p/ddd",
+   "Grinder comparison thread"
+  ]
+ ],
+ "YouTube Shorts — May 2026": [
+  [
+   "#",
+   "Video Title",
+   "Duration",
+   "Date Published",
+   "Revenue (USD)",
+   "Views",
+   "Watch time (hours)",
+   "Subscribers",
+   "Score: Views",
+   "Score: Watch time (hours)",
+   "Score: Subscribers",
+   "Total Score",
+   "Overall Rank",
+   "Performance Note",
+   "Permalink"
+  ],
+  [
+   1,
+   "How to grind coffee",
+   "0:45",
+   "05/04/2026 00:00",
+   300,
+   12000,
+   400,
+   80,
+   1,
+   2,
+   2,
+   5,
+   1,
+   "Top performer this month.  +80 subscribers.",
+   "https://youtube.com/watch?v=vid00000001"
+  ],
+  [
+   2,
+   "Quick crema tip",
+   "0:30",
+   "05/09/2026 00:00",
+   200,
+   15000,
+   300,
+   60,
+   2,
+   1,
+   1,
+   4,
+   2,
+   "+60 subscribers.",
+   "https://youtube.com/watch?v=vid00000003"
+  ]
+ ],
+ "YouTube Long-form — May 2026": [
+  [
+   "#",
+   "Video Title",
+   "Duration",
+   "Date Published",
+   "Revenue (USD)",
+   "Views",
+   "Watch time (hours)",
+   "Subscribers",
+   "Score: Views",
+   "Score: Watch time (hours)",
+   "Score: Subscribers",
+   "Total Score",
+   "Overall Rank",
+   "Performance Note",
+   "Permalink"
+  ],
+  [
+   1,
+   "Full brewing masterclass",
+   "20:00",
+   "05/07/2026 00:00",
+   450,
+   8000,
+   900,
+   120,
+   2,
+   2,
+   2,
+   6,
+   1,
+   "Top performer this month.  +120 subscribers.",
+   "https://youtube.com/watch?v=vid00000002"
+  ],
+  [
+   2,
+   "Deep dive on extraction",
+   "30:00",
+   "05/12/2026 00:00",
+   500,
+   5000,
+   700,
+   90,
+   1,
+   1,
+   1,
+   3,
+   2,
+   "CTR 8.0% — strong click-through.  +90 subscribers.",
+   "https://youtube.com/watch?v=vid00000004"
+  ]
+ ],
+ "Footnotes & Insights": [
+  [
+   "Test Client Performance Footnotes & Insights — May 2026",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Instagram Format Breakdown",
+   null,
+   null,
+   null
+  ],
+  [
+   "Metric",
+   "Reels",
+   "Carousels",
+   "Images"
+  ],
+  [
+   "Posts",
+   "0",
+   "0",
+   "0"
+  ],
+  [
+   "Views",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Reach",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Likes",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Comments",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Shares",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Saves",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Follows",
+   "0  (0%)",
+   "0  (0%)",
+   "0  (0%)"
+  ],
+  [
+   "Avg Views/post",
+   "0.0",
+   "0.0",
+   "0.0"
+  ],
+  [
+   "Avg Saves/post",
+   "0.0",
+   "0.0",
+   "0.0"
+  ],
+  [
+   "Avg Comments/post",
+   "0.0",
+   "0.0",
+   "0.0"
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Facebook Format Breakdown",
+   null,
+   null,
+   null
+  ],
+  [
+   "Metric",
+   "Video/Reel",
+   "Photo/Carousel",
+   "Platform Total"
+  ],
+  [
+   "Posts",
+   "2",
+   "2",
+   "4"
+  ],
+  [
+   "Views",
+   "25,000  (74%)",
+   "9,000  (26%)",
+   "34,000"
+  ],
+  [
+   "Reach",
+   "28,000  (73%)",
+   "10,500  (27%)",
+   "38,500"
+  ],
+  [
+   "Reactions",
+   "710  (68%)",
+   "340  (32%)",
+   "1,050"
+  ],
+  [
+   "Comments",
+   "55  (79%)",
+   "15  (21%)",
+   "70"
+  ],
+  [
+   "Shares",
+   "40  (82%)",
+   "9  (18%)",
+   "49"
+  ],
+  [
+   "Link Clicks",
+   "100  (80%)",
+   "25  (20%)",
+   "125"
+  ],
+  [
+   "Avg Views/post",
+   "12500.0",
+   "4500.0",
+   "8500.0"
+  ],
+  [
+   "Avg Reactions/post",
+   "355.0",
+   "170.0",
+   "262.5"
+  ],
+  [
+   "Link in Comments posts",
+   "0",
+   "1",
+   "1"
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "YouTube Shorts Breakdown",
+   null,
+   null,
+   null
+  ],
+  [
+   "Metric",
+   "May 2026",
+   "—",
+   null
+  ],
+  [
+   "Videos published",
+   "2",
+   null,
+   null
+  ],
+  [
+   "Total Views",
+   "27,000",
+   null,
+   null
+  ],
+  [
+   "Total Watch time (hours)",
+   "700",
+   null,
+   null
+  ],
+  [
+   "Total Subscribers gained",
+   "140",
+   null,
+   null
+  ],
+  [
+   "Total Impressions",
+   "70,000",
+   null,
+   null
+  ],
+  [
+   "Avg Impressions CTR (%)",
+   "5.60",
+   null,
+   null
+  ],
+  [
+   "Total Revenue (USD)",
+   "500",
+   null,
+   null
+  ],
+  [
+   "Avg Views/video",
+   "13500.00",
+   null,
+   null
+  ],
+  [
+   "Avg Watch time/video (hours)",
+   "350.00",
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "YouTube Long-form Breakdown",
+   null,
+   null,
+   null
+  ],
+  [
+   "Metric",
+   "May 2026",
+   "—",
+   null
+  ],
+  [
+   "Videos published",
+   "2",
+   null,
+   null
+  ],
+  [
+   "Total Views",
+   "13,000",
+   null,
+   null
+  ],
+  [
+   "Total Watch time (hours)",
+   "1,600",
+   null,
+   null
+  ],
+  [
+   "Total Subscribers gained",
+   "210",
+   null,
+   null
+  ],
+  [
+   "Total Impressions",
+   "40,000",
+   null,
+   null
+  ],
+  [
+   "Avg Impressions CTR (%)",
+   "7.55",
+   null,
+   null
+  ],
+  [
+   "Total Revenue (USD)",
+   "950",
+   null,
+   null
+  ],
+  [
+   "Avg Views/video",
+   "6500.00",
+   null,
+   null
+  ],
+  [
+   "Avg Watch time/video (hours)",
+   "800.00",
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "What Worked",
+   null,
+   null,
+   null
+  ],
+  [
+   "[What Worked: 4 entries — to be written]",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "What Didn't Work",
+   null,
+   null,
+   null
+  ],
+  [
+   "[What Didn't Work: 3 entries — to be written]",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "What We Do About It",
+   null,
+   null,
+   null
+  ],
+  [
+   "[What We Do About It: 4 entries — to be written]",
+   null,
+   null,
+   null
+  ]
+ ],
+ "Summary & Strategy": [
+  [
+   "Test Client Social — Executive Summary — May 2026",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Combined Platform Snapshot",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   "Instagram",
+   "Facebook",
+   "Combined"
+  ],
+  [
+   "Posts published",
+   "5",
+   "4",
+   "9"
+  ],
+  [
+   "Total Views",
+   "18,200",
+   "34,000",
+   "52,200"
+  ],
+  [
+   "Avg Views/post",
+   "3640",
+   "8500",
+   "5800"
+  ],
+  [
+   "Total Saves (IG)",
+   "135",
+   "—",
+   "135"
+  ],
+  [
+   "Total Follows gained (IG)",
+   "26",
+   "—",
+   "26"
+  ],
+  [
+   "Total Comments",
+   "54",
+   "70",
+   "124"
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Executive View",
+   null,
+   null,
+   null
+  ],
+  [
+   "1. The creative formula",
+   "[to be written from config strategy + this month's data]",
+   null,
+   null
+  ],
+  [
+   "2. CTA and conversion mechanics",
+   "[to be written from config strategy + this month's data]",
+   null,
+   null
+  ],
+  [
+   "3. Platform differentiation",
+   "[to be written from config strategy + this month's data]",
+   null,
+   null
+  ],
+  [
+   "4. Volume vs quality",
+   "[to be written from config strategy + this month's data]",
+   null,
+   null
+  ],
+  [
+   "5. Strategic context",
+   "[to be written from config strategy + this month's data]",
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Recommended Focus Areas",
+   null,
+   null,
+   null
+  ],
+  [
+   "[3–4 numbered focus areas — to be written]",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "YouTube Snapshot",
+   null,
+   null,
+   null
+  ],
+  [
+   null,
+   "Shorts",
+   "Long-form",
+   "Combined"
+  ],
+  [
+   "Videos",
+   "2",
+   "2",
+   "4"
+  ],
+  [
+   "Total Views",
+   "27,000",
+   "13,000",
+   "40,000"
+  ],
+  [
+   "Watch time (hrs)",
+   "700",
+   "1600",
+   "2300"
+  ],
+  [
+   "Subscribers",
+   "140",
+   "210",
+   "350"
+  ],
+  [
+   "Revenue (USD)",
+   "500",
+   "950",
+   "1450"
+  ],
+  [
+   "Avg CTR (%)",
+   "5.60",
+   "7.55",
+   "6.57"
+  ],
+  [
+   null,
+   null,
+   null,
+   null
+  ],
+  [
+   "Note: No Stories CSV this month.",
+   null,
+   null,
+   null
+  ]
+ ]
+}
