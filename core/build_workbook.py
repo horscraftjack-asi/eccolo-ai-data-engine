@@ -109,9 +109,17 @@ YT_COLUMN_MAP = {
     "Content":                              "Video ID",
     "Video publish time":                   "Publish time",
     "Impressions click-through rate (%)":   "Impressions CTR",
+    # YouTube Studio renamed these two columns at some point ("Impressions" -> "Thumbnail
+    # impressions", "Impressions click-through rate (%)" -> "Thumbnail click-through rate (%)").
+    # Both naming generations show up across different clients' exports depending on when they
+    # last re-selected columns in Advanced mode, so both are normalised to the same canonical
+    # name the rest of the engine (fingerprinting, footnotes, config metric matching) expects.
+    "Thumbnail impressions":                "Impressions",
+    "Thumbnail click-through rate (%)":     "Impressions CTR",
     # These pass through unchanged:
-    #   Video title, Duration, Views, Watch time (hours),
-    #   Subscribers, Estimated revenue (USD), Impressions
+    #   Video title, Duration, Views, Watch time (hours), Subscribers,
+    #   Estimated revenue (USD), Likes, Shares, Comments added, New viewers,
+    #   Returning viewers, Engaged views, Stayed to watch (%), Average percentage viewed (%)
 }
 
 YT_SHORTS_THRESHOLD = 60   # seconds — videos ≤ this are classified as Shorts
@@ -130,6 +138,27 @@ def normalize_youtube(df: pd.DataFrame) -> pd.DataFrame:
         df["Permalink"] = df["Video ID"].apply(
             lambda v: f"https://youtube.com/watch?v={v}" if pd.notna(v) else "")
     return df.reset_index(drop=True)
+
+
+def filter_youtube_to_month(df: pd.DataFrame, month: str) -> tuple[pd.DataFrame, int]:
+    """Keep only videos actually PUBLISHED in the report month.
+
+    YouTube Studio's Table data export lists every video with any activity in the selected
+    date range, not just videos published in it — an evergreen Short from a year ago with a
+    fresh view spike shows up alongside this month's new uploads. Meta exports don't have this
+    problem (the client scopes those to the report period before export), so left unfiltered,
+    YouTube results skew toward old high-lifetime-total videos instead of reflecting this
+    month's actual output. Returns (filtered_df, n_excluded).
+    """
+    if "Publish time" not in df.columns or not len(df):
+        return df, 0
+    target = pd.Period(pd.to_datetime(month, errors="coerce"), freq="M") if month else None
+    if target is None or pd.isna(target):
+        return df, 0
+    pub = pd.to_datetime(df["Publish time"], errors="coerce")
+    mask = pub.dt.to_period("M") == target
+    filtered = df[mask].copy().reset_index(drop=True)
+    return filtered, len(df) - len(filtered)
 
 
 def split_youtube_by_duration(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -728,7 +757,13 @@ def run_build(config_path: str, csv_paths: dict, month: str | None = None,
     # --- Score YouTube ---
     for plat in ("youtube_shorts", "youtube_longform"):
         if plat in dfs:
-            yt = dfs[plat].copy()
+            yt, n_excluded = filter_youtube_to_month(dfs[plat].copy(), month)
+            if n_excluded:
+                label = "YouTube Shorts" if plat == "youtube_shorts" else "YouTube Long-form"
+                report["notes"].append(
+                    f"{label}: excluded {n_excluded} video(s) published outside {month} "
+                    "(evergreen videos with activity this month but published earlier/later) "
+                    "to keep scoring scoped to this month's output, matching Meta.")
             tables[plat] = score_posts(yt, cfg.metrics.get(plat, []), cfg.sparsity_threshold)
 
     breakdown_frames = {"instagram": tables.get("instagram"), "facebook": tables.get("facebook")}
